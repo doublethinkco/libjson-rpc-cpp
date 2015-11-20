@@ -1,37 +1,61 @@
 /*************************************************************************
  * libjson-rpc-cpp
  *************************************************************************
- * @file
- * @date    7/10/2015
- * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
+ * @file    zmqserver.h
+ * @date    15.11.2015
+ * @author  Badaev Vladimir <dead.skif@gmail.com>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
-#ifndef ZMQSERVER_H
-#define ZMQSERVER_H
+#ifndef JSONRPC_CPP_ZMQSERVER_H_
+
+#define JSONRPC_CPP_ZMQSERVER_H_
+#include <vector>
+#include <string>
+#include <thread>
 
 #include <zmq.hpp>
 #include "../abstractserverconnector.h"
 
 namespace jsonrpc
 {
-    struct zmqserverImp;
-
-    class ZMQServer : public AbstractServerConnector
+    class ZMQListener;
+    /**
+     * This class provides ZeroMQ REP/REQ Socket Server,to handle incoming Requests.
+     */
+    class ZMQServer: public AbstractServerConnector
     {
         public:
-            ZMQServer(const std::string &address = "tcp://*:8080");
+
+            /**
+             * @brief ZeroMQSocketServer, constructor for the included ZeroMQSocketServer
+             * @param endpoint, a string containing the ZeroMQ endpoint or IP address.
+             * @param threads_count, 0 for 1-thread variant, else will run threads_count threads for each endpoint.
+             */
+            ZMQServer(const std::string& endpoint="*", unsigned int threads_coun=0);
+            /**
+             * @brief ZeroMQSocketServer, constructor for the included ZeroMQSocketServer
+             * @param endpoints, a vector of strings containing the ZeroMQ endpoints.
+             * @param threads_count, 0 for 1-thread variant, else will run threads_count threads for each endpoint.
+             */
+            ZMQServer(std::vector<std::string> endpoints, unsigned int threads_count=0);
+
+            virtual ~ZMQServer();
 
             virtual bool StartListening();
+            /**
+             * @brief StopListening, due to no simple way to stop c11 std::thread, multithreaded ZMQServer stops for a LONG time.
+             */
             virtual bool StopListening();
 
             bool virtual SendResponse(const std::string& response, void* addInfo = NULL);
 
-        private:
-            struct zmqserverImp* imp;
-            zmq::context_t m_context;
-            zmq::socket_t m_socket;
-            std::string m_address;
+
+        protected:
+            std::vector<std::string> endpoints;
+            std::unique_ptr<ZMQListener> listener;
+            unsigned int threads_count;
+
     };
-}
-#endif // ZMQSERVER_H
+} /* namespace jsonrpc */
+#endif /* JSONRPC_CPP_ZMQSERVER_H_ */

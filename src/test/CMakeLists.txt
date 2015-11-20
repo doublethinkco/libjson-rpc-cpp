@@ -27,10 +27,19 @@ if(COMPILE_STUBGEN)
 	add_definitions(-DSTUBGEN_TESTING)
 endif()
 
+if(ZMQ_CLIENT AND ZMQ_SERVER)
+    add_definitions(-DZMQCONNECTORS_TESTING)
+endif()
+
 add_executable(unit_testsuite ${test_source})
 target_link_libraries(unit_testsuite jsonrpccommon)
 target_link_libraries(unit_testsuite jsonrpcserver)
 target_link_libraries(unit_testsuite jsonrpcclient)
+
+if (NOT CATCH_FOUND)
+	# let's wait for catch files to be downloaded
+	add_dependencies(unit_testsuite catch)
+endif()
 
 if(COMPILE_STUBGEN)
         list(APPEND test_source "${CMAKE_BINARY_DIR}/gen/abstractstubserver.h")
@@ -57,6 +66,12 @@ endif()
 
 if(HTTP_CLIENT AND HTTP_SERVER AND COMPILE_STUBGEN)
         add_test(NAME integration WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unit_testsuite "[integration]")
+endif()
+
+if(ZMQ_CLIENT AND ZMQ_SERVER)
+        add_test(NAME connector_zmq WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unit_testsuite
+            "[connector_zmq]")
 endif()
 
 add_test(NAME all WORKING_DIRECTORY ${CMAKE_BINARY_DIR} COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/unit_testsuite)
