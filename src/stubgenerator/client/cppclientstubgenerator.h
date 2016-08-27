@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    clientstubgenerator.h
  * @date    01.05.2013
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -25,7 +25,6 @@ namespace jsonrpc
 
             virtual void generateStub();
 
-        private:
             void generateMethod(Procedure& proc);
             void generateAssignments(Procedure& proc);
             void generateProcCall(Procedure &proc);

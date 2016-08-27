@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cinemast/libjson-rpc-cpp.png?branch=master)](https://travis-ci.org/cinemast/libjson-rpc-cpp) [![Coverage Status](https://coveralls.io/repos/cinemast/libjson-rpc-cpp/badge.png?branch=develop)](https://coveralls.io/r/cinemast/libjson-rpc-cpp?branch=develop) [![Coverity Status](https://scan.coverity.com/projects/3169/badge.svg?flat=1)](https://scan.coverity.com/projects/3169)
+[![Build Status](https://travis-ci.org/cinemast/libjson-rpc-cpp.png?branch=master)](https://travis-ci.org/cinemast/libjson-rpc-cpp) [![codecov](https://codecov.io/gh/cinemast/libjson-rpc-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/cinemast/libjson-rpc-cpp) [![Coverity Status](https://scan.coverity.com/projects/3169/badge.svg?flat=1)](https://scan.coverity.com/projects/3169)
 
 libjson-rpc-cpp
 ===============
@@ -11,7 +11,7 @@ It is fully JSON-RPC [2.0 & 1.0 compatible](http://www.jsonrpc.org/specification
 **5 good reasons for using libjson-rpc-cpp in your next RPC project**
 - Full JSON-RPC 2.0 & 1.0 Client and Server Support.
 - jsonrpcstub - a tool that generates stub-classes for your JSON-RPC client AND server applications.
-- Ready to use HTTP server and client to provide simple interfaces for your JSON-RPC application.
+- Ready to use HTTP + TCP server and client to provide simple interfaces for your JSON-RPC application.
 - Cross platform build support and [precompiled binaries for WIN32](http://spiessknafl.at/libjson-rpc-cpp).
 - Super liberal [MIT-License](http://en.wikipedia.org/wiki/MIT_License). 
 
@@ -30,7 +30,7 @@ Overview
 Install the framework
 =====================
 
-**Debian**
+**Debian (stretch) and Ubuntu (15.10 or later)**
 
 ```sh
 sudo apt-get install libjsonrpccpp-dev libjsonrpccpp-tools
@@ -111,6 +111,8 @@ Default configuration should be fine for most systems, but here are available co
 - `-DHTTP_CLIENT=NO` disable the curl client.
 - `-DUNIX_DOMAIN_SOCKET_SERVER=NO` disable the unix domain socket server connector.
 - `-DUNIX_DOMAIN_SOCKET_CLIENT=NO` disable the unix domain socket client connector.
+- `-DTCP_SOCKET_SERVER=NO` disable the tcp socket server connector.
+- `-DTCP_SOCKET_CLIENT=NO` disable the tcp socket client connector.
 
 Using the framework
 ===================

@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    responsehandler.cpp
  * @date    13.03.2013
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -50,7 +50,7 @@ void RpcProtocolClient::HandleResponse(const std::string &response, Json::Value&
     }
 }
 
-int RpcProtocolClient::HandleResponse(const Json::Value &value, Json::Value &result) throw(JsonRpcException)
+Json::Value RpcProtocolClient::HandleResponse(const Json::Value &value, Json::Value &result) throw(JsonRpcException)
 {
     if(this->ValidateResponse(value))
     {
@@ -67,7 +67,7 @@ int RpcProtocolClient::HandleResponse(const Json::Value &value, Json::Value &res
     {
         throw JsonRpcException(Errors::ERROR_CLIENT_INVALID_RESPONSE, " " + value.toStyledString());
     }
-    return value[KEY_ID].asInt();
+    return value[KEY_ID];
 }
 
 void RpcProtocolClient::BuildRequest(int id, const std::string &method, const Json::Value &parameter, Json::Value &result, bool isNotification)
@@ -86,10 +86,20 @@ void RpcProtocolClient::BuildRequest(int id, const std::string &method, const Js
 void RpcProtocolClient::throwErrorException(const Json::Value &response)
 {
     if (response[KEY_ERROR].isMember(KEY_ERROR_MESSAGE) && response[KEY_ERROR][KEY_ERROR_MESSAGE].isString())
+    {
         if (response[KEY_ERROR].isMember(KEY_ERROR_DATA))
+        {
             throw JsonRpcException(response[KEY_ERROR][KEY_ERROR_CODE].asInt(), response[KEY_ERROR][KEY_ERROR_MESSAGE].asString(), response[KEY_ERROR][KEY_ERROR_DATA]);
-        throw JsonRpcException(response[KEY_ERROR][KEY_ERROR_CODE].asInt(), response[KEY_ERROR][KEY_ERROR_MESSAGE].asString());
-    throw JsonRpcException(response[KEY_ERROR][KEY_ERROR_CODE].asInt());
+        }
+        else
+        {
+            throw JsonRpcException(response[KEY_ERROR][KEY_ERROR_CODE].asInt(), response[KEY_ERROR][KEY_ERROR_MESSAGE].asString());
+        }
+    }
+    else
+    {
+        throw JsonRpcException(response[KEY_ERROR][KEY_ERROR_CODE].asInt());
+    }
 }
 
 bool RpcProtocolClient::ValidateResponse(const Json::Value& response)
@@ -103,7 +113,7 @@ bool RpcProtocolClient::ValidateResponse(const Json::Value& response)
             return false;
         if(!response[KEY_RESULT].isNull() && !response[KEY_ERROR].isNull())
             return false;
-        if (!response[KEY_ERROR].isNull() && !(response[KEY_ERROR].isObject() && response[KEY_ERROR].isMember(KEY_ERROR_CODE) && response[KEY_ERROR][KEY_ERROR_CODE].isInt()))
+        if (!response[KEY_ERROR].isNull() && !(response[KEY_ERROR].isObject() && response[KEY_ERROR].isMember(KEY_ERROR_CODE) && response[KEY_ERROR][KEY_ERROR_CODE].isIntegral()))
             return false;
     }
     else if (this->version == JSONRPC_CLIENT_V2)
@@ -114,7 +124,7 @@ bool RpcProtocolClient::ValidateResponse(const Json::Value& response)
             return false;
         if (!response.isMember(KEY_RESULT) && !response.isMember(KEY_ERROR))
             return false;
-        if (response.isMember(KEY_ERROR) && !(response[KEY_ERROR].isObject() && response[KEY_ERROR].isMember(KEY_ERROR_CODE) && response[KEY_ERROR][KEY_ERROR_CODE].isInt()))
+        if (response.isMember(KEY_ERROR) && !(response[KEY_ERROR].isObject() && response[KEY_ERROR].isMember(KEY_ERROR_CODE) && response[KEY_ERROR][KEY_ERROR_CODE].isIntegral()))
             return false;
     }
 

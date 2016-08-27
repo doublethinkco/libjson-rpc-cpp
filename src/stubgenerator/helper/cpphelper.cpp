@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    cpphelper.cpp
  * @date    29.09.2013
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -219,7 +219,7 @@ string  CPPHelper::isCppConversion                  (jsontype_t type)
             result = ".isBool()";
             break;
         case JSON_INTEGER:
-            result = ".isInt()";
+            result = ".isIntegral()";
             break;
         case JSON_REAL:
             result = ".isDouble()";

@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    httpserver.cpp
  * @date    31.12.2012
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -88,7 +88,7 @@ bool HttpServer::StopListening()
 bool HttpServer::SendResponse(const string& response, void* addInfo)
 {
     struct mhd_coninfo* client_connection = static_cast<struct mhd_coninfo*>(addInfo);
-    struct MHD_Response *result = MHD_create_response_from_data(response.size(),(void *) response.c_str(), 0, 1);
+    struct MHD_Response *result = MHD_create_response_from_buffer(response.size(),(void *) response.c_str(), MHD_RESPMEM_MUST_COPY);
 
     MHD_add_response_header(result, "Content-Type", "application/json");
     MHD_add_response_header(result, "Access-Control-Allow-Origin", "*");
@@ -101,7 +101,7 @@ bool HttpServer::SendResponse(const string& response, void* addInfo)
 bool HttpServer::SendOptionsResponse(void* addInfo)
 {
     struct mhd_coninfo* client_connection = static_cast<struct mhd_coninfo*>(addInfo);
-    struct MHD_Response *result = MHD_create_response_from_data(0, NULL, 0, 1);
+    struct MHD_Response *result = MHD_create_response_from_buffer(0, NULL, MHD_RESPMEM_MUST_COPY);
 
     MHD_add_response_header(result, "Allow", "POST, OPTIONS");
     MHD_add_response_header(result, "Access-Control-Allow-Origin", "*");
@@ -147,7 +147,7 @@ int HttpServer::callback(void *cls, MHD_Connection *connection, const char *url,
             if (handler == NULL)
             {
                 client_connection->code = MHD_HTTP_INTERNAL_SERVER_ERROR;
-                client_connection->server->SendResponse("No client conneciton handler found", client_connection);
+                client_connection->server->SendResponse("No client connection handler found", client_connection);
             }
             else
             {
@@ -167,6 +167,7 @@ int HttpServer::callback(void *cls, MHD_Connection *connection, const char *url,
         client_connection->server->SendResponse("Not allowed HTTP Method", client_connection);
     }
     delete client_connection;
+    *con_cls = NULL;
 
     return MHD_YES;
 }

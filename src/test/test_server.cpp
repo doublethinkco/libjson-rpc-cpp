@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    test_server.cpp
  * @date    28.09.2013
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -65,6 +65,13 @@ TEST_CASE_METHOD(F, "test_server_v2_method_success", TEST_MODULE)
     CHECK(c.GetJsonResponse()["id"].asString() ==  "1");
     CHECK(c.GetJsonResponse()["jsonrpc"].asString() ==  "2.0");
     CHECK(c.GetJsonResponse().isMember("error") ==  false);
+
+    c.SetRequest("{\"jsonrpc\":\"2.0\", \"id\": 4294967295, \"method\": \"sub\",\"params\":[5,7]}");
+    CHECK(c.GetJsonResponse()["result"].asInt() == -2);
+    CHECK(c.GetJsonResponse()["id"].asLargestUInt() ==  (unsigned long)4294967295);
+    CHECK(c.GetJsonResponse()["jsonrpc"].asString() ==  "2.0");
+    CHECK(c.GetJsonResponse().isMember("error") ==  false);
+
 }
 
 TEST_CASE_METHOD(F, "test_server_v2_notification_success", TEST_MODULE)

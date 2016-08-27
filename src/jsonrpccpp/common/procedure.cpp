@@ -3,7 +3,7 @@
  *************************************************************************
  * @file    procedure.cpp
  * @date    31.12.2012
- * @author  Peter Spiess-Knafl <peter.knafl@gmail.com>
+ * @author  Peter Spiess-Knafl <dev@spiessknafl.at>
  * @license See attached LICENSE.txt
  ************************************************************************/
 
@@ -166,7 +166,7 @@ bool    Procedure::ValidateSingleParameter      (jsontype_t expectedType, const 
                 ok = false;
             break;
         case JSON_INTEGER:
-            if (!value.isInt())
+            if (!value.isIntegral())
                 ok = false;
             break;
         case JSON_REAL:

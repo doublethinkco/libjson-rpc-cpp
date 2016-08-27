@@ -37,6 +37,7 @@ if (HTTP_CLIENT)
 	list(APPEND client_connector_header "client/connectors/httpclient.h")
 	list(APPEND client_connector_source "client/connectors/httpclient.cpp")
 	list(APPEND client_connector_libs ${CURL_LIBRARIES})
+    include_directories(${CURL_INCLUDE_DIRS})
 endif()
 
 if (HTTP_SERVER)
@@ -47,21 +48,52 @@ endif()
 
 # setup sources for unix domain socket connectors
 if (UNIX_DOMAIN_SOCKET_SERVER)
-        list(APPEND server_connector_header "server/connectors/unixdomainsocketserver.h")
-        list(APPEND server_connector_source "server/connectors/unixdomainsocketserver.cpp")
-        list(APPEND server_connector_libs ${CMAKE_THREAD_LIBS_INIT})
+	list(APPEND server_connector_header "server/connectors/unixdomainsocketserver.h")
+	list(APPEND server_connector_source "server/connectors/unixdomainsocketserver.cpp")
+	list(APPEND server_connector_libs ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 if (UNIX_DOMAIN_SOCKET_CLIENT)
-        list(APPEND client_connector_header "client/connectors/unixdomainsocketclient.h")
-        list(APPEND client_connector_source "client/connectors/unixdomainsocketclient.cpp")
+	list(APPEND client_connector_header "client/connectors/unixdomainsocketclient.h")
+	list(APPEND client_connector_source "client/connectors/unixdomainsocketclient.cpp")
+endif()
+
+# setup sources for tcp socket connectors
+if (TCP_SOCKET_SERVER)
+	list(APPEND server_connector_header "server/connectors/tcpsocketserver.h")
+	list(APPEND server_connector_source "server/connectors/tcpsocketserver.cpp")
+	if (WIN32)
+		list(APPEND server_connector_header "server/connectors/windowstcpsocketserver.h")
+		list(APPEND server_connector_source "server/connectors/windowstcpsocketserver.cpp")
+		list(APPEND server_connector_libs ws2_32)
+	endif()
+	if(UNIX)
+		list(APPEND server_connector_header "server/connectors/linuxtcpsocketserver.h")
+		list(APPEND server_connector_source "server/connectors/linuxtcpsocketserver.cpp")
+	endif()
+	list(APPEND server_connector_libs ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+if (TCP_SOCKET_CLIENT)
+	list(APPEND client_connector_header "client/connectors/tcpsocketclient.h")
+	list(APPEND client_connector_source "client/connectors/tcpsocketclient.cpp")
+	if (WIN32)
+		list(APPEND client_connector_header "client/connectors/windowstcpsocketclient.h")
+		list(APPEND client_connector_source "client/connectors/windowstcpsocketclient.cpp")
+		list(APPEND client_connector_libs ws2_32)
+	endif()
+	if(UNIX)
+		list(APPEND client_connector_header "client/connectors/linuxtcpsocketclient.h")
+		list(APPEND client_connector_source "client/connectors/linuxtcpsocketclient.cpp")
+	endif()
+	list(APPEND client_connector_libs ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
 # configure a header file to pass some of the CMake settings to the source code
 # TODO: move it to custom build step?
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/gen/jsonrpccpp/common")
-configure_file("${CMAKE_SOURCE_DIR}/src/jsonrpccpp/version.h.in" "${CMAKE_BINARY_DIR}/gen/jsonrpccpp/version.h")
-configure_file("${PROJECT_SOURCE_DIR}/src/jsonrpccpp/common/jsonparser.h.in" "${PROJECT_BINARY_DIR}/gen/jsonrpccpp/common/jsonparser.h")
+configure_file("${PROJECT_SOURCE_DIR}/src/jsonrpccpp/version.h.in" "${CMAKE_BINARY_DIR}/gen/jsonrpccpp/version.h")
+configure_file("${PROJECT_SOURCE_DIR}/src/jsonrpccpp/common/jsonparser.h.in" "${CMAKE_BINARY_DIR}/gen/jsonrpccpp/common/jsonparser.h")
 
 install(FILES "${CMAKE_BINARY_DIR}/gen/jsonrpccpp/version.h" DESTINATION include/jsonrpccpp)
 install(FILES "${PROJECT_BINARY_DIR}/gen/jsonrpccpp/common/jsonparser.h" DESTINATION include/jsonrpccpp/common)
@@ -161,8 +193,8 @@ if (WIN32)
 endif()
 
 install(TARGETS ${ALL_LIBS}
-        LIBRARY DESTINATION lib/${CMAKE_LIBRARY_PATH}
-        ARCHIVE DESTINATION lib/${CMAKE_LIBRARY_PATH}
+	LIBRARY DESTINATION lib${LIB_SUFFIX}/${CMAKE_LIBRARY_PATH}
+	ARCHIVE DESTINATION lib${LIB_SUFFIX}/${CMAKE_LIBRARY_PATH}
 	RUNTIME DESTINATION bin
 )
 
@@ -171,14 +203,14 @@ get_filename_component(FULL_PATH_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} ABSOLUTE
 set(FULL_PATH_INCLUDEDIR "${FULL_PATH_INSTALL_PREFIX}/include")
 set(FULL_PATH_LIBDIR "${FULL_PATH_INSTALL_PREFIX}/lib/${CMAKE_LIBRARY_PATH}")
 
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/libjsonrpccpp-client.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-client.pc)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/libjsonrpccpp-server.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-server.pc)
-CONFIGURE_FILE(${CMAKE_SOURCE_DIR}/cmake/libjsonrpccpp-common.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-common.pc)
+CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/cmake/libjsonrpccpp-client.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-client.pc)
+CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/cmake/libjsonrpccpp-server.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-server.pc)
+CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/cmake/libjsonrpccpp-common.pc.cmake ${CMAKE_BINARY_DIR}/libjsonrpccpp-common.pc)
 
 INSTALL(FILES 
     "${CMAKE_BINARY_DIR}/libjsonrpccpp-server.pc"
     "${CMAKE_BINARY_DIR}/libjsonrpccpp-client.pc"
     "${CMAKE_BINARY_DIR}/libjsonrpccpp-common.pc"
-    DESTINATION "lib/${CMAKE_LIBRARY_PATH}/pkgconfig")
+    DESTINATION "lib${LIB_SUFFIX}/${CMAKE_LIBRARY_PATH}/pkgconfig")
 
 

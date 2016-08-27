@@ -11,7 +11,7 @@ if (${CMAKE_MAJOR_VERSION} GREATER 2)
 endif()
 
 set(MAJOR_VERSION 0)
-set(MINOR_VERSION 6)
+set(MINOR_VERSION 7)
 set(PATCH_VERSION 0)
 set(SO_VERSION    0)
 
@@ -25,9 +25,11 @@ endif()
 
 # defaults for modules that can be enabled/disabled
 if(UNIX)
-        set(UNIX_DOMAIN_SOCKET_SERVER YES CACHE BOOL "Include Unix Domain Socket server")
-        set(UNIX_DOMAIN_SOCKET_CLIENT YES CACHE BOOL "Include Unix Domain Socket client")
+	set(UNIX_DOMAIN_SOCKET_SERVER YES CACHE BOOL "Include Unix Domain Socket server")
+	set(UNIX_DOMAIN_SOCKET_CLIENT YES CACHE BOOL "Include Unix Domain Socket client")
 endif(UNIX)
+set(TCP_SOCKET_SERVER NO CACHE BOOL "Include Tcp Socket server")
+set(TCP_SOCKET_CLIENT NO CACHE BOOL "Include Tcp Socket client")
 set(HTTP_SERVER YES CACHE BOOL "Include HTTP server using libmicrohttpd")
 set(HTTP_CLIENT YES CACHE BOOL "Include HTTP client support using curl")
 set(COMPILE_TESTS YES CACHE BOOL "Compile test framework")
@@ -35,6 +37,12 @@ set(COMPILE_STUBGEN YES CACHE BOOL "Compile the stubgenerator")
 set(COMPILE_EXAMPLES YES CACHE BOOL "Compile example programs")
 
 # print actual settings
+if(UNIX)
+	message(STATUS "UNIX_DOMAIN_SOCKET_SERVER: ${UNIX_DOMAIN_SOCKET_SERVER}")
+	message(STATUS "UNIX_DOMAIN_SOCKET_CLIENT: ${UNIX_DOMAIN_SOCKET_CLIENT}")
+endif(UNIX)
+message(STATUS "TCP_SOCKET_SERVER: ${TCP_SOCKET_SERVER}")
+message(STATUS "TCP_SOCKET_CLIENT: ${TCP_SOCKET_CLIENT}")
 message(STATUS "HTTP_SERVER: ${HTTP_SERVER}")
 message(STATUS "HTTP_CLIENT: ${HTTP_CLIENT}")
 if(UNIX)
@@ -46,7 +54,7 @@ message(STATUS "COMPILE_STUBGEN: ${COMPILE_STUBGEN}")
 message(STATUS "COMPILE_EXAMPLES: ${COMPILE_EXAMPLES}")
 
 # setup directory where we should look for cmake files
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
 
 # setup compiler settings && dependencies
 include(CMakeCompilerSettings)
@@ -88,7 +96,7 @@ endif()
 if (DOXYGEN_FOUND)
 	file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/doc)
 	message(STATUS "Found doxygen: ${DOXYGEN_EXECUTABLE}")
-	configure_file("${CMAKE_SOURCE_DIR}/doc/doxyfile.in" "${CMAKE_BINARY_DIR}/Doxyfile" @ONLY)
+	configure_file("${PROJECT_SOURCE_DIR}/doc/doxyfile.in" "${CMAKE_BINARY_DIR}/Doxyfile" @ONLY)
 	add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc COMMENT "Generating API documentation")
 endif(DOXYGEN_FOUND)
 
